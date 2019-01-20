@@ -2,15 +2,13 @@
 ### Licensed under the CC BY-NC-SA 4.0 license (https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode).
 import time
 import os
-import numpy as np
 from collections import OrderedDict
-from torch.autograd import Variable
+import torch
 from options.test_options import TestOptions
 from data.data_loader import CreateDataLoader
 from models.models import create_model
 import util.util as util
 from util.visualizer import Visualizer
-from util import html
 
 opt = TestOptions().parse(save=False)
 opt.nThreads = 1   # test code only supports nThreads = 1
@@ -35,9 +33,9 @@ for i, data in enumerate(dataset):
         model.fake_B_prev = None
 
     _, _, height, width = data['A'].size()
-    A = Variable(data['A']).view(1, -1, input_nc, height, width)
-    B = Variable(data['B']).view(1, -1, opt.output_nc, height, width) if len(data['B'].size()) > 2 else None
-    inst = Variable(data['inst']).view(1, -1, 1, height, width) if len(data['inst'].size()) > 2 else None
+    A = data['A'].view(1, -1, input_nc, height, width)
+    B = data['B'].view(1, -1, opt.output_nc, height, width) if len(data['B'].size()) > 2 else None
+    inst = data['inst'].view(1, -1, 1, height, width) if len(data['inst'].size()) > 2 else None
     generated = model.inference(A, B, inst)
     
     if opt.label_nc != 0:
